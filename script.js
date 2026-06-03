@@ -49,9 +49,21 @@ function loadAttributesStructure(state = null) {
     if (state && state.guardioesAttributesData) {
         sourceData = state.guardioesAttributesData;
     } else {
-        const stored = localStorage.getItem('guardioesAttributesData');
-        if (stored) {
-            sourceData = JSON.parse(stored);
+        const fullStateJSON = localStorage.getItem('guardioesRPGState');
+        if (fullStateJSON) {
+            try {
+                const fullState = JSON.parse(fullStateJSON);
+                if (fullState.guardioesAttributesData) {
+                    sourceData = fullState.guardioesAttributesData;
+                }
+            } catch(e) {}
+        }
+        
+        if (!sourceData) {
+            const stored = localStorage.getItem('guardioesAttributesData');
+            if (stored) {
+                sourceData = JSON.parse(stored);
+            }
         }
     }
 
