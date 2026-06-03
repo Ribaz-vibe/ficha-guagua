@@ -11,13 +11,20 @@ const defaultAttributesData = [
 ];
 
 let attributesData = [];
+let customTabs = [];
+let customFields = [];
 let isEditMode = false;
 let isPlayMode = false;
 let autoSaveInterval = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     loadAttributesStructure();
+    loadDynamicStructure(); // Load custom tabs/fields from state before building UI
+    
     buildAttributesUI();
+    renderDynamicTabs();
+    renderDynamicFields();
+    
     setupEventListeners();
     setupSystemUI();
     
@@ -153,6 +160,10 @@ function setupSystemUI() {
         document.getElementById('perfil-nivel').value = '1';
         document.getElementById('perfil-proficiencia').value = '2';
         document.getElementById('char-portrait').src = '';
+        customTabs = [];
+        customFields = [];
+        renderDynamicTabs();
+        renderDynamicFields();
         buildAttributesUI();
         calculateAll();
         showToast('Nova Ficha criada!', 'success');
@@ -392,6 +403,23 @@ function setupEventListeners() {
         document.documentElement.style.setProperty('--primary-glow', e.target.value + '99');
     });
 
+    // Accordions
+    document.querySelectorAll('.accordion-header').forEach(header => attachAccordionEvent(header));
+
+    // Dynamic Tabs
+    const btnAddTab = document.getElementById('btn-add-tab');
+    if (btnAddTab) {
+        btnAddTab.addEventListener('click', () => {
+            const tabName = prompt('Nome da nova Aba:');
+            if (tabName) {
+                const tabId = 'custom-tab-' + Date.now();
+                customTabs.push({ id: tabId, name: tabName });
+                renderDynamicTabs();
+                saveStateSilent();
+            }
+        });
+    }
+
     // Edit Mode
     const btnEdit = document.getElementById('btn-edit-mode');
     btnEdit.addEventListener('click', () => {
@@ -436,16 +464,163 @@ function updateEditModeUI() {
     if (isEditMode) {
         document.body.classList.add('edit-mode');
         document.querySelectorAll('.editable-label').forEach(el => el.removeAttribute('readonly'));
+        // Inject Add Field Buttons
+        document.querySelectorAll('.dynamic-container').forEach(container => {
+            if (!container.querySelector('.add-field-btn')) {
+                const btn = document.createElement('button');
+                btn.className = 'add-field-btn edit-only-ui';
+                btn.textContent = '➕ Adicionar Novo Bloco de Texto';
+                btn.onclick = () => {
+                    const tabId = container.id;
+                    const fieldId = 'custom-field-' + Date.now();
+                    customFields.push({ id: fieldId, tabId: tabId, label: 'Novo Tópico' });
+                    renderDynamicFields();
+                    saveStateSilent();
+                };
+                container.appendChild(btn);
+            }
+        });
     } else {
         document.body.classList.remove('edit-mode');
         document.querySelectorAll('.editable-label').forEach(el => el.setAttribute('readonly', 'readonly'));
         syncAttributesFromDOM();
+        syncCustomFieldsFromDOM();
     }
+}
+
+// --- DYNAMIC TABS & FIELDS ---
+function loadDynamicStructure() {
+    const fullStateJSON = localStorage.getItem('guardioesRPGState');
+    if (fullStateJSON) {
+        try {
+            const state = JSON.parse(fullStateJSON);
+            if (state.guardioesCustomTabs) customTabs = state.guardioesCustomTabs;
+            if (state.guardioesCustomFields) customFields = state.guardioesCustomFields;
+        } catch(e) {}
+    }
+}
+
+function renderDynamicTabs() {
+    const container = document.getElementById('custom-tabs-container');
+    const mainContainer = document.getElementById('sheet-container');
+    if(!container || !mainContainer) return;
+    
+    container.innerHTML = '';
+    // Remove old custom tab contents
+    document.querySelectorAll('.custom-tab-content').forEach(el => el.remove());
+
+    customTabs.forEach((tab, index) => {
+        // Render Sidebar Button
+        const btn = document.createElement('button');
+        btn.className = 'tab-btn custom-tab-btn';
+        btn.setAttribute('data-target', tab.id);
+        btn.innerHTML = `${tab.name} <button class="del-tab-btn edit-only-ui" onclick="deleteTab(${index}, event)">❌</button>`;
+        btn.addEventListener('click', (e) => {
+            if(e.target.classList.contains('del-tab-btn')) return;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(tab.id).classList.add('active');
+        });
+        container.appendChild(btn);
+
+        // Render Tab Content
+        const content = document.createElement('div');
+        content.id = tab.id;
+        content.className = 'tab-content dynamic-container custom-tab-content';
+        const fieldsContainer = document.createElement('div');
+        fieldsContainer.className = 'custom-fields-container';
+        content.appendChild(fieldsContainer);
+        mainContainer.appendChild(content);
+    });
+
+    if(isEditMode) updateEditModeUI();
+}
+
+function renderDynamicFields() {
+    document.querySelectorAll('.custom-fields-container').forEach(c => c.innerHTML = '');
+    
+    customFields.forEach((field, index) => {
+        const tabEl = document.getElementById(field.tabId);
+        if(!tabEl) return;
+        const container = tabEl.querySelector('.custom-fields-container');
+        if(!container) return;
+
+        const section = document.createElement('section');
+        section.className = 'panel accordion custom-field-panel';
+        section.innerHTML = `
+            <div class="panel-header accordion-header">
+                <input type="text" class="editable-label" id="label-${field.id}" value="${field.label}" ${isEditMode ? '' : 'readonly'}>
+                <div>
+                    <button class="del-field-btn edit-only-ui" onclick="deleteField(${index}, event)">❌</button>
+                    <span class="acc-icon">▼</span>
+                </div>
+            </div>
+            <div class="panel-body accordion-body open">
+                <textarea class="value-input textarea-large" id="${field.id}"></textarea>
+            </div>
+        `;
+        container.appendChild(section);
+        attachAccordionEvent(section.querySelector('.accordion-header'));
+        
+        // Restore value if it exists in DOM memory during re-render
+        const savedVal = localStorage.getItem('guardioesRPGState');
+        if(savedVal) {
+            try {
+                const s = JSON.parse(savedVal);
+                if(s[field.id]) {
+                    setTimeout(() => document.getElementById(field.id).value = s[field.id], 50);
+                }
+            } catch(e){}
+        }
+    });
+}
+
+function attachAccordionEvent(header) {
+    // Avoid double attaching
+    const newHeader = header.cloneNode(true);
+    header.parentNode.replaceChild(newHeader, header);
+    
+    newHeader.addEventListener('click', (e) => {
+        if(e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'button') return;
+        newHeader.classList.toggle('active');
+        const body = newHeader.nextElementSibling;
+        if(body) body.classList.toggle('open');
+    });
+}
+
+function deleteTab(index, event) {
+    event.stopPropagation();
+    if(confirm('Apagar esta aba inteira e todos os seus campos?')) {
+        const tabId = customTabs[index].id;
+        customTabs.splice(index, 1);
+        customFields = customFields.filter(f => f.tabId !== tabId);
+        renderDynamicTabs();
+        renderDynamicFields();
+        saveStateSilent();
+    }
+}
+
+function deleteField(index, event) {
+    event.stopPropagation();
+    if(confirm('Apagar este campo?')) {
+        customFields.splice(index, 1);
+        renderDynamicFields();
+        saveStateSilent();
+    }
+}
+
+function syncCustomFieldsFromDOM() {
+    customFields.forEach(field => {
+        const labelInput = document.getElementById(`label-${field.id}`);
+        if(labelInput) field.label = labelInput.value;
+    });
 }
 
 // --- STATE MANAGEMENT ---
 function getStateObject() {
     syncAttributesFromDOM();
+    syncCustomFieldsFromDOM();
     const state = {};
     document.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach(el => {
         if (el.id && !el.id.startsWith('label-skill-') && !el.id.startsWith('prof-') && !el.id.startsWith('auto-attr-') && !el.id.startsWith('mod-attr-') && !el.id.startsWith('val-attr-') && !el.id.startsWith('label-attr-') && !el.id.startsWith('hud-')) {
@@ -455,6 +630,8 @@ function getStateObject() {
     
     state['primaryColor'] = document.getElementById('primary-color').value;
     state['guardioesAttributesData'] = attributesData;
+    state['guardioesCustomTabs'] = customTabs;
+    state['guardioesCustomFields'] = customFields;
     
     const portrait = document.getElementById('char-portrait');
     if(portrait && portrait.src) state['charPortrait'] = portrait.src;
@@ -484,7 +661,7 @@ function loadState(providedState = null) {
     
     if (state) {
         for (const key in state) {
-            if (key !== 'guardioesAttributesData' && key !== 'primaryColor' && key !== 'charPortrait' && key !== 'scratchpad') {
+            if (key !== 'guardioesAttributesData' && key !== 'primaryColor' && key !== 'charPortrait' && key !== 'scratchpad' && key !== 'guardioesCustomTabs' && key !== 'guardioesCustomFields') {
                 const el = document.getElementById(key);
                 if (el) el.value = state[key];
             }
@@ -532,6 +709,10 @@ function importJSON(event) {
         try {
             const state = JSON.parse(e.target.result);
             loadAttributesStructure(state);
+            if(state.guardioesCustomTabs) customTabs = state.guardioesCustomTabs;
+            if(state.guardioesCustomFields) customFields = state.guardioesCustomFields;
+            renderDynamicTabs();
+            renderDynamicFields();
             buildAttributesUI();
             loadState(state);
             calculateAll();

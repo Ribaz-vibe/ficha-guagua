@@ -115,7 +115,11 @@
             <button class="tab-btn" data-target="tab-rituais">☸️ -Rituais-</button>
             <button class="tab-btn" data-target="tab-transformacoes">☠️ -Transformações-</button>
             <button class="tab-btn" data-target="tab-pactos">👿 -Pactos-</button>
+            <button class="tab-btn" data-target="tab-inventario">🎒 -Inventário-</button>
             <button class="tab-btn" data-target="tab-diario">📝 -Diário-</button>
+            
+            <div id="custom-tabs-container"></div>
+            <button id="btn-add-tab" class="btn btn-highlight edit-only-ui" style="margin-top: 15px; width: 100%;">➕ Nova Aba</button>
         </aside>
 
         <!-- Main Content Area -->
@@ -203,36 +207,6 @@
                                 <textarea class="value-input textarea-large" id="combat-resistencias" placeholder="Resistências, Imunidades, Fraquezas..."></textarea>
                             </div>
                         </section>
-                        <section class="panel">
-                            <div class="panel-header"><input type="text" class="editable-label" value="INVENTÁRIO E EQUIPAMENTO" readonly></div>
-                            <div class="panel-body">
-                                <div class="encumbrance-bar">
-                                    <input type="text" class="editable-label" value="Carga Max:" readonly>
-                                    <span class="calc-value" id="calc-carga-max">5</span>
-                                    <span class="helper-text">(5 + Força + Vigor)</span>
-                                </div>
-                                <div class="slots-grid">
-                                    <div class="slot-field"><input type="text" class="editable-label" value="Cabeça (0/1):" readonly><input type="text" class="value-input slot-input" id="inv-cabeca"></div>
-                                    <div class="slot-field"><input type="text" class="editable-label" value="Olhos (0/2):" readonly><input type="text" class="value-input slot-input" id="inv-olhos"></div>
-                                    <div class="slot-field"><input type="text" class="editable-label" value="Orelhas (0/2):" readonly><input type="text" class="value-input slot-input" id="inv-orelhas"></div>
-                                    <div class="slot-field"><input type="text" class="editable-label" value="Pescoço (0/3):" readonly><input type="text" class="value-input slot-input" id="inv-pescoco"></div>
-                                    <div class="slot-field"><input type="text" class="editable-label" value="Tronco (0/1):" readonly><input type="text" class="value-input slot-input" id="inv-tronco"></div>
-                                    <div class="slot-field"><input type="text" class="editable-label" value="Corpo (0/3):" readonly><input type="text" class="value-input slot-input" id="inv-corpo"></div>
-                                    <div class="slot-field"><input type="text" class="editable-label" value="Pulso (0/4):" readonly><input type="text" class="value-input slot-input" id="inv-pulso"></div>
-                                    <div class="slot-field"><input type="text" class="editable-label" value="Mãos (0/2):" readonly><input type="text" class="value-input slot-input" id="inv-maos"></div>
-                                    <div class="slot-field"><input type="text" class="editable-label" value="Pés (0/1):" readonly><input type="text" class="value-input slot-input" id="inv-pes"></div>
-                                </div>
-                                <div class="inventory-box">
-                                    <input type="text" class="editable-label" value="Mochila / Itens Livres:" readonly>
-                                    <textarea class="value-input textarea-large" id="inv-mochila" placeholder="Escreva aqui seus itens..."></textarea>
-                                </div>
-                                <div class="wallet-grid">
-                                    <div class="wallet-item"><input type="text" class="editable-label" value="Créditos:" readonly><input type="number" class="value-input number-input" id="coin-creditos" value="0"></div>
-                                    <div class="wallet-item"><input type="text" class="editable-label" value="Prata:" readonly><input type="number" class="value-input number-input" id="coin-prata" value="0"></div>
-                                    <div class="wallet-item"><input type="text" class="editable-label" value="Ouro:" readonly><input type="number" class="value-input number-input" id="coin-ouro" value="0"></div>
-                                </div>
-                            </div>
-                        </section>
                     </div>
                     <div class="col-right">
                         <section class="panel">
@@ -246,133 +220,171 @@
             </div>
 
             <!-- ABA: HABILIDADES -->
-            <div id="tab-habilidades" class="tab-content">
-                <section class="panel">
-                    <div class="panel-header"><input type="text" class="editable-label" value="-Habilidades-" readonly></div>
-                    <div class="panel-body"><textarea class="value-input textarea-large" id="text-habilidades-gerais"></textarea></div>
+            <div id="tab-habilidades" class="tab-content dynamic-container">
+                <section class="panel accordion">
+                    <div class="panel-header accordion-header"><input type="text" class="editable-label" value="-Habilidades Gerais-" readonly> <span class="acc-icon">▼</span></div>
+                    <div class="panel-body accordion-body"><textarea class="value-input textarea-large" id="text-habilidades-gerais"></textarea></div>
                 </section>
-                <section class="panel">
-                    <div class="panel-header"><input type="text" class="editable-label" value="-Habilidades passivas-" readonly></div>
-                    <div class="panel-body"><textarea class="value-input textarea-large" id="text-habilidades-passivas"></textarea></div>
+                <section class="panel accordion">
+                    <div class="panel-header accordion-header"><input type="text" class="editable-label" value="-Habilidades passivas-" readonly> <span class="acc-icon">▼</span></div>
+                    <div class="panel-body accordion-body"><textarea class="value-input textarea-large" id="text-habilidades-passivas"></textarea></div>
                 </section>
-                <section class="panel">
-                    <div class="panel-header"><input type="text" class="editable-label" value="-Habilidades De Trilha-" readonly></div>
-                    <div class="panel-body"><textarea class="value-input textarea-large" id="text-habilidades-trilha"></textarea></div>
+                <section class="panel accordion">
+                    <div class="panel-header accordion-header"><input type="text" class="editable-label" value="-Habilidades De Trilha-" readonly> <span class="acc-icon">▼</span></div>
+                    <div class="panel-body accordion-body"><textarea class="value-input textarea-large" id="text-habilidades-trilha"></textarea></div>
                 </section>
-                <section class="panel">
-                    <div class="panel-header"><input type="text" class="editable-label" value="-Habilidades De Reação-" readonly></div>
-                    <div class="panel-body"><textarea class="value-input textarea-large" id="text-habilidades-reacao"></textarea></div>
+                <section class="panel accordion">
+                    <div class="panel-header accordion-header"><input type="text" class="editable-label" value="-Habilidades De Reação-" readonly> <span class="acc-icon">▼</span></div>
+                    <div class="panel-body accordion-body"><textarea class="value-input textarea-large" id="text-habilidades-reacao"></textarea></div>
                 </section>
-                <section class="panel">
-                    <div class="panel-header"><input type="text" class="editable-label" value="-Habilidades da Raça-" readonly></div>
-                    <div class="panel-body"><textarea class="value-input textarea-large" id="text-habilidades-raca"></textarea></div>
+                <section class="panel accordion">
+                    <div class="panel-header accordion-header"><input type="text" class="editable-label" value="-Habilidades da Raça-" readonly> <span class="acc-icon">▼</span></div>
+                    <div class="panel-body accordion-body"><textarea class="value-input textarea-large" id="text-habilidades-raca"></textarea></div>
                 </section>
-                <section class="panel">
-                    <div class="panel-header"><input type="text" class="editable-label" value="-Habilidades da MARCA-" readonly></div>
-                    <div class="panel-body"><textarea class="value-input textarea-large" id="text-habilidades-marca"></textarea></div>
+                <section class="panel accordion">
+                    <div class="panel-header accordion-header"><input type="text" class="editable-label" value="-Habilidades da MARCA-" readonly> <span class="acc-icon">▼</span></div>
+                    <div class="panel-body accordion-body"><textarea class="value-input textarea-large" id="text-habilidades-marca"></textarea></div>
                 </section>
-                <section class="panel">
-                    <div class="panel-header"><input type="text" class="editable-label" value="-Habilidades de Acampamento-" readonly></div>
-                    <div class="panel-body"><textarea class="value-input textarea-large" id="text-habilidades-acampamento"></textarea></div>
+                <section class="panel accordion">
+                    <div class="panel-header accordion-header"><input type="text" class="editable-label" value="-Habilidades de Acampamento-" readonly> <span class="acc-icon">▼</span></div>
+                    <div class="panel-body accordion-body"><textarea class="value-input textarea-large" id="text-habilidades-acampamento"></textarea></div>
                 </section>
+                <div class="custom-fields-container"></div>
             </div>
 
             <!-- ABA: PODERES -->
-            <div id="tab-poderes" class="tab-content">
-                <section class="panel">
-                    <div class="panel-header"><input type="text" class="editable-label" value="-Poderes-" readonly></div>
-                    <div class="panel-body"><textarea class="value-input textarea-huge" id="text-poderes-gerais"></textarea></div>
+            <div id="tab-poderes" class="tab-content dynamic-container">
+                <section class="panel accordion">
+                    <div class="panel-header accordion-header"><input type="text" class="editable-label" value="-Poderes Gerais-" readonly> <span class="acc-icon">▼</span></div>
+                    <div class="panel-body accordion-body"><textarea class="value-input textarea-huge" id="text-poderes-gerais"></textarea></div>
                 </section>
-                <section class="panel">
-                    <div class="panel-header"><input type="text" class="editable-label" value="-Poderes Exclusivos-" readonly></div>
-                    <div class="panel-body"><textarea class="value-input textarea-huge" id="text-poderes-exclusivos"></textarea></div>
+                <section class="panel accordion">
+                    <div class="panel-header accordion-header"><input type="text" class="editable-label" value="-Poderes Exclusivos-" readonly> <span class="acc-icon">▼</span></div>
+                    <div class="panel-body accordion-body"><textarea class="value-input textarea-huge" id="text-poderes-exclusivos"></textarea></div>
                 </section>
+                <div class="custom-fields-container"></div>
             </div>
 
             <!-- ABA: MAGIAS -->
-            <div id="tab-magias" class="tab-content">
-                <div class="grid-layout">
-                    <div class="col-left">
-                        <section class="panel">
-                            <div class="panel-header"><input type="text" class="editable-label" value="Nível 1" readonly></div>
-                            <div class="panel-body"><textarea class="value-input textarea-large" id="text-magias-l1"></textarea></div>
-                        </section>
-                        <section class="panel">
-                            <div class="panel-header"><input type="text" class="editable-label" value="Nível 2" readonly></div>
-                            <div class="panel-body"><textarea class="value-input textarea-large" id="text-magias-l2"></textarea></div>
-                        </section>
-                        <section class="panel">
-                            <div class="panel-header"><input type="text" class="editable-label" value="Nível 3" readonly></div>
-                            <div class="panel-body"><textarea class="value-input textarea-large" id="text-magias-l3"></textarea></div>
-                        </section>
-                        <section class="panel">
-                            <div class="panel-header"><input type="text" class="editable-label" value="Nível 4" readonly></div>
-                            <div class="panel-body"><textarea class="value-input textarea-large" id="text-magias-l4"></textarea></div>
-                        </section>
-                        <section class="panel">
-                            <div class="panel-header"><input type="text" class="editable-label" value="Nível 5" readonly></div>
-                            <div class="panel-body"><textarea class="value-input textarea-large" id="text-magias-l5"></textarea></div>
-                        </section>
-                    </div>
-                    <div class="col-right">
-                        <section class="panel">
-                            <div class="panel-header"><input type="text" class="editable-label" value="Nível 6" readonly></div>
-                            <div class="panel-body"><textarea class="value-input textarea-large" id="text-magias-l6"></textarea></div>
-                        </section>
-                        <section class="panel">
-                            <div class="panel-header"><input type="text" class="editable-label" value="Nível 7" readonly></div>
-                            <div class="panel-body"><textarea class="value-input textarea-large" id="text-magias-l7"></textarea></div>
-                        </section>
-                        <section class="panel">
-                            <div class="panel-header"><input type="text" class="editable-label" value="Nível 8" readonly></div>
-                            <div class="panel-body"><textarea class="value-input textarea-large" id="text-magias-l8"></textarea></div>
-                        </section>
-                        <section class="panel">
-                            <div class="panel-header"><input type="text" class="editable-label" value="Nível 9" readonly></div>
-                            <div class="panel-body"><textarea class="value-input textarea-large" id="text-magias-l9"></textarea></div>
-                        </section>
-                    </div>
-                </div>
+            <div id="tab-magias" class="tab-content dynamic-container">
+                <section class="panel accordion">
+                    <div class="panel-header accordion-header"><input type="text" class="editable-label" value="Truques (Nível 0)" readonly> <span class="acc-icon">▼</span></div>
+                    <div class="panel-body accordion-body"><textarea class="value-input textarea-huge" id="text-magias-l0"></textarea></div>
+                </section>
+                <section class="panel accordion">
+                    <div class="panel-header accordion-header"><input type="text" class="editable-label" value="Nível 1" readonly> <span class="acc-icon">▼</span></div>
+                    <div class="panel-body accordion-body"><textarea class="value-input textarea-huge" id="text-magias-l1"></textarea></div>
+                </section>
+                <section class="panel accordion">
+                    <div class="panel-header accordion-header"><input type="text" class="editable-label" value="Nível 2" readonly> <span class="acc-icon">▼</span></div>
+                    <div class="panel-body accordion-body"><textarea class="value-input textarea-huge" id="text-magias-l2"></textarea></div>
+                </section>
+                <section class="panel accordion">
+                    <div class="panel-header accordion-header"><input type="text" class="editable-label" value="Nível 3" readonly> <span class="acc-icon">▼</span></div>
+                    <div class="panel-body accordion-body"><textarea class="value-input textarea-huge" id="text-magias-l3"></textarea></div>
+                </section>
+                <section class="panel accordion">
+                    <div class="panel-header accordion-header"><input type="text" class="editable-label" value="Nível 4" readonly> <span class="acc-icon">▼</span></div>
+                    <div class="panel-body accordion-body"><textarea class="value-input textarea-huge" id="text-magias-l4"></textarea></div>
+                </section>
+                <section class="panel accordion">
+                    <div class="panel-header accordion-header"><input type="text" class="editable-label" value="Nível 5" readonly> <span class="acc-icon">▼</span></div>
+                    <div class="panel-body accordion-body"><textarea class="value-input textarea-huge" id="text-magias-l5"></textarea></div>
+                </section>
+                <section class="panel accordion">
+                    <div class="panel-header accordion-header"><input type="text" class="editable-label" value="Nível 6" readonly> <span class="acc-icon">▼</span></div>
+                    <div class="panel-body accordion-body"><textarea class="value-input textarea-huge" id="text-magias-l6"></textarea></div>
+                </section>
+                <section class="panel accordion">
+                    <div class="panel-header accordion-header"><input type="text" class="editable-label" value="Nível 7" readonly> <span class="acc-icon">▼</span></div>
+                    <div class="panel-body accordion-body"><textarea class="value-input textarea-huge" id="text-magias-l7"></textarea></div>
+                </section>
+                <section class="panel accordion">
+                    <div class="panel-header accordion-header"><input type="text" class="editable-label" value="Nível 8" readonly> <span class="acc-icon">▼</span></div>
+                    <div class="panel-body accordion-body"><textarea class="value-input textarea-huge" id="text-magias-l8"></textarea></div>
+                </section>
+                <section class="panel accordion">
+                    <div class="panel-header accordion-header"><input type="text" class="editable-label" value="Nível 9" readonly> <span class="acc-icon">▼</span></div>
+                    <div class="panel-body accordion-body"><textarea class="value-input textarea-huge" id="text-magias-l9"></textarea></div>
+                </section>
+                <div class="custom-fields-container"></div>
             </div>
 
             <!-- ABA: RITUAIS -->
-            <div id="tab-rituais" class="tab-content">
-                <section class="panel">
-                    <div class="panel-header"><input type="text" class="editable-label" value="RITUAIS" readonly></div>
-                    <div class="panel-body">
-                        <textarea class="value-input textarea-huge" id="text-rituais" placeholder="Descreva rituais místicos..."></textarea>
-                    </div>
+            <div id="tab-rituais" class="tab-content dynamic-container">
+                <section class="panel accordion">
+                    <div class="panel-header accordion-header"><input type="text" class="editable-label" value="RITUAIS" readonly> <span class="acc-icon">▼</span></div>
+                    <div class="panel-body accordion-body"><textarea class="value-input textarea-huge" id="text-rituais" placeholder="Descreva rituais místicos..."></textarea></div>
                 </section>
+                <div class="custom-fields-container"></div>
             </div>
 
             <!-- ABA: TRANSFORMACOES -->
-            <div id="tab-transformacoes" class="tab-content">
-                <section class="panel">
-                    <div class="panel-header"><input type="text" class="editable-label" value="TRANSFORMAÇÕES" readonly></div>
-                    <div class="panel-body">
-                        <textarea class="value-input textarea-huge" id="text-transformacoes" placeholder="Formas alternativas, Besta, Licantropia, etc..."></textarea>
-                    </div>
+            <div id="tab-transformacoes" class="tab-content dynamic-container">
+                <section class="panel accordion">
+                    <div class="panel-header accordion-header"><input type="text" class="editable-label" value="TRANSFORMAÇÕES" readonly> <span class="acc-icon">▼</span></div>
+                    <div class="panel-body accordion-body"><textarea class="value-input textarea-huge" id="text-transformacoes" placeholder="Formas alternativas, Besta, Licantropia, etc..."></textarea></div>
                 </section>
+                <div class="custom-fields-container"></div>
             </div>
 
             <!-- ABA: PACTOS -->
-            <div id="tab-pactos" class="tab-content">
-                <section class="panel">
-                    <div class="panel-header"><input type="text" class="editable-label" value="PACTOS" readonly></div>
-                    <div class="panel-body">
-                        <textarea class="value-input textarea-huge" id="text-pactos" placeholder="Pactos com entidades, dívidas, etc..."></textarea>
+            <div id="tab-pactos" class="tab-content dynamic-container">
+                <section class="panel accordion">
+                    <div class="panel-header accordion-header"><input type="text" class="editable-label" value="PACTOS" readonly> <span class="acc-icon">▼</span></div>
+                    <div class="panel-body accordion-body"><textarea class="value-input textarea-huge" id="text-pactos" placeholder="Pactos com entidades, dívidas, etc..."></textarea></div>
+                </section>
+                <div class="custom-fields-container"></div>
+            </div>
+            
+            <!-- ABA: INVENTÁRIO -->
+            <div id="tab-inventario" class="tab-content dynamic-container">
+                <section class="panel accordion">
+                    <div class="panel-header accordion-header"><input type="text" class="editable-label" value="INVENTÁRIO E EQUIPAMENTO" readonly> <span class="acc-icon">▼</span></div>
+                    <div class="panel-body accordion-body">
+                        <div class="encumbrance-bar">
+                            <input type="text" class="editable-label" value="Carga Max:" readonly>
+                            <span class="calc-value" id="calc-carga-max">5</span>
+                            <span class="helper-text">(5 + Força + Vigor)</span>
+                        </div>
+                        <div class="grid-layout">
+                            <div class="slots-grid">
+                                <div class="slot-field"><input type="text" class="editable-label" value="Cabeça (0/1):" readonly><input type="text" class="value-input slot-input" id="inv-cabeca"></div>
+                                <div class="slot-field"><input type="text" class="editable-label" value="Olhos (0/2):" readonly><input type="text" class="value-input slot-input" id="inv-olhos"></div>
+                                <div class="slot-field"><input type="text" class="editable-label" value="Orelhas (0/2):" readonly><input type="text" class="value-input slot-input" id="inv-orelhas"></div>
+                                <div class="slot-field"><input type="text" class="editable-label" value="Pescoço (0/3):" readonly><input type="text" class="value-input slot-input" id="inv-pescoco"></div>
+                                <div class="slot-field"><input type="text" class="editable-label" value="Tronco (0/1):" readonly><input type="text" class="value-input slot-input" id="inv-tronco"></div>
+                                <div class="slot-field"><input type="text" class="editable-label" value="Corpo (0/3):" readonly><input type="text" class="value-input slot-input" id="inv-corpo"></div>
+                                <div class="slot-field"><input type="text" class="editable-label" value="Pulso (0/4):" readonly><input type="text" class="value-input slot-input" id="inv-pulso"></div>
+                                <div class="slot-field"><input type="text" class="editable-label" value="Mãos (0/2):" readonly><input type="text" class="value-input slot-input" id="inv-maos"></div>
+                                <div class="slot-field"><input type="text" class="editable-label" value="Pés (0/1):" readonly><input type="text" class="value-input slot-input" id="inv-pes"></div>
+                            </div>
+                            <div>
+                                <div class="inventory-box">
+                                    <input type="text" class="editable-label" value="Mochila / Itens Livres:" readonly>
+                                    <textarea class="value-input textarea-huge" id="inv-mochila" placeholder="Escreva aqui seus itens..."></textarea>
+                                </div>
+                                <div class="wallet-grid">
+                                    <div class="wallet-item"><input type="text" class="editable-label" value="Créditos:" readonly><input type="number" class="value-input number-input" id="coin-creditos" value="0"></div>
+                                    <div class="wallet-item"><input type="text" class="editable-label" value="Prata:" readonly><input type="number" class="value-input number-input" id="coin-prata" value="0"></div>
+                                    <div class="wallet-item"><input type="text" class="editable-label" value="Ouro:" readonly><input type="number" class="value-input number-input" id="coin-ouro" value="0"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </section>
+                <div class="custom-fields-container"></div>
             </div>
 
             <!-- ABA: DIARIO -->
-            <div id="tab-diario" class="tab-content">
-                <section class="panel">
-                    <div class="panel-header"><input type="text" class="editable-label" value="DIÁRIO E ANOTAÇÕES" readonly></div>
-                    <div class="panel-body">
+            <div id="tab-diario" class="tab-content dynamic-container">
+                <section class="panel accordion">
+                    <div class="panel-header accordion-header"><input type="text" class="editable-label" value="DIÁRIO E ANOTAÇÕES" readonly> <span class="acc-icon">▼</span></div>
+                    <div class="panel-body accordion-body">
                         <textarea class="value-input textarea-huge" id="text-diario" placeholder="Anotações da campanha..."></textarea>
                     </div>
                 </section>
+                <div class="custom-fields-container"></div>
             </div>
             
         </main>
