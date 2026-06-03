@@ -1,11 +1,13 @@
-// Default structure for Guardiões 3.0 Attributes
 const defaultAttributesData = [
-    { id: 'forca', name: 'FORÇA', value: 10, modifier: 0, autoMod: true, skills: [{ name: 'Atletismo', prof: 0 }] },
-    { id: 'destreza', name: 'DESTREZA', value: 10, modifier: 0, autoMod: true, skills: [{ name: 'Acrobacia', prof: 0 }, { name: 'Furtividade', prof: 0 }, { name: 'Crime', prof: 0 }, { name: 'Pilotagem', prof: 0 }] },
-    { id: 'constituicao', name: 'CONSTITUIÇÃO', value: 10, modifier: 0, autoMod: true, skills: [{ name: 'Fortitude', prof: 0 }] },
-    { id: 'inteligencia', name: 'INTELIGÊNCIA', value: 10, modifier: 0, autoMod: true, skills: [{ name: 'Investigação', prof: 0 }, { name: 'Sobrevivência', prof: 0 }, { name: 'História', prof: 0 }, { name: 'Misticismo', prof: 0 }, { name: 'Atualidades', prof: 0 }] },
-    { id: 'sabedoria', name: 'SABEDORIA', value: 10, modifier: 0, autoMod: true, skills: [{ name: 'Intuição', prof: 0 }, { name: 'Medicina', prof: 0 }, { name: 'Percepção', prof: 0 }, { name: 'Vontade', prof: 0 }, { name: 'Religião', prof: 0 }, { name: 'Trato com animais', prof: 0 }] },
-    { id: 'carisma', name: 'CARISMA', value: 10, modifier: 0, autoMod: true, skills: [{ name: 'Atuação', prof: 0 }, { name: 'Diplomacia', prof: 0 }, { name: 'Enganação', prof: 0 }, { name: 'Intimidação', prof: 0 }] }
+    { id: 'forca', name: 'FORÇA', value: 10, modifier: 0, autoMod: true, skills: [{ name: 'Atletismo', prof: 0 }, { name: 'Agarrar', prof: 0 }, { name: 'Impacto', prof: 0 }] },
+    { id: 'destreza', name: 'DESTREZA', value: 10, modifier: 0, autoMod: true, skills: [{ name: 'Acrobacia', prof: 0 }, { name: 'Esquiva', prof: 0 }, { name: 'Furtividade', prof: 0 }, { name: 'Iniciativa', prof: 0 }, { name: 'Roubo', prof: 0 }] },
+    { id: 'vigor', name: 'VIGOR', value: 10, modifier: 0, autoMod: true, skills: [{ name: 'Fôlego', prof: 0 }] },
+    { id: 'inteligencia', name: 'INTELIGÊNCIA', value: 10, modifier: 0, autoMod: true, skills: [{ name: 'Arcanismo', prof: 0 }, { name: 'Tecnologia', prof: 0 }, { name: 'História', prof: 0 }, { name: 'Idioma', prof: 0 }, { name: 'Intuição', prof: 0 }, { name: 'Investigação', prof: 0 }, { name: 'Manutenção', prof: 0 }, { name: 'Medicina', prof: 0 }, { name: 'Pilotagem', prof: 0 }, { name: 'Procurar', prof: 0 }, { name: 'Sobrevivência', prof: 0 }] },
+    { id: 'sabedoria', name: 'SABEDORIA', value: 10, modifier: 0, autoMod: true, skills: [{ name: 'Adestrar animais', prof: 0 }, { name: 'Astronomia', prof: 0 }, { name: 'Diplomacia', prof: 0 }, { name: 'Montaria', prof: 0 }, { name: 'Percepção', prof: 0 }] },
+    { id: 'carisma', name: 'CARISMA', value: 10, modifier: 0, autoMod: true, skills: [{ name: 'Barganha', prof: 0 }, { name: 'Encanto', prof: 0 }, { name: 'Enganação', prof: 0 }, { name: 'Intimidação', prof: 0 }, { name: 'Lábia', prof: 0 }, { name: 'Performance', prof: 0 }, { name: 'Persuasão', prof: 0 }] },
+    { id: 'poder', name: 'PODER', value: 10, modifier: 0, autoMod: true, skills: [{ name: 'Exorcismo', prof: 0 }, { name: 'Forçar conjuração', prof: 0 }, { name: 'Rituais', prof: 0 }] },
+    { id: 'alma', name: 'ALMA', value: 10, modifier: 0, autoMod: true, skills: [{ name: 'Comunhão Espiritual', prof: 0 }, { name: 'Contra possessão', prof: 0 }, { name: 'Leitura da Essência', prof: 0 }] },
+    { id: 'sorte', name: 'SORTE', value: 10, modifier: 0, autoMod: true, skills: [{ name: 'Evitar maldição', prof: 0 }, { name: 'Objetivo Impossível', prof: 0 }, { name: 'Recompensa', prof: 0 }, { name: 'Sorte no Caos', prof: 0 }] }
 ];
 
 let attributesData = [];
@@ -43,15 +45,38 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function loadAttributesStructure(state = null) {
+    let sourceData = null;
     if (state && state.guardioesAttributesData) {
-        attributesData = JSON.parse(JSON.stringify(state.guardioesAttributesData));
+        sourceData = state.guardioesAttributesData;
     } else {
         const stored = localStorage.getItem('guardioesAttributesData');
         if (stored) {
-            attributesData = JSON.parse(stored);
-        } else {
-            attributesData = JSON.parse(JSON.stringify(defaultAttributesData));
+            sourceData = JSON.parse(stored);
         }
+    }
+
+    if (sourceData) {
+        // Migration to merge new defaults with user's saved data
+        attributesData = defaultAttributesData.map(defAttr => {
+            let existing = sourceData.find(a => a.id === defAttr.id);
+            if (!existing && defAttr.id === 'vigor') existing = sourceData.find(a => a.id === 'constituicao');
+            
+            if (existing) {
+                let mergedSkills = JSON.parse(JSON.stringify(defAttr.skills));
+                existing.skills.forEach(exSkill => {
+                    const found = mergedSkills.find(s => s.name.toLowerCase() === exSkill.name.toLowerCase());
+                    if (found) {
+                        found.prof = exSkill.prof;
+                    } else {
+                        mergedSkills.push(exSkill);
+                    }
+                });
+                return { ...defAttr, value: existing.value, modifier: existing.modifier, autoMod: existing.autoMod, skills: mergedSkills };
+            }
+            return JSON.parse(JSON.stringify(defAttr));
+        });
+    } else {
+        attributesData = JSON.parse(JSON.stringify(defaultAttributesData));
     }
 }
 
@@ -328,7 +353,7 @@ function calculateAll() {
     });
 
     const force = attributesData.find(a => a.id === 'forca')?.value || 10;
-    const vigor = attributesData.find(a => a.id === 'constituicao')?.value || 10;
+    const vigor = attributesData.find(a => a.id === 'vigor')?.value || 10;
     const calcCarga = Math.floor(5 + force + vigor);
     document.getElementById('calc-carga-max').textContent = calcCarga;
     
