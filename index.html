@@ -6,20 +6,30 @@
     <title>Ficha Guardiões 3.0</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
 </head>
 <body>
     <!-- Top Action Bar -->
     <div class="action-bar no-print">
-        <button id="btn-edit-mode" class="btn">🛡️ Modo Edição: OFF</button>
-        <button id="btn-save" class="btn">💾 Salvar Local</button>
-        <button id="btn-export-json" class="btn">📥 Backup JSON</button>
-        <label for="file-upload" class="btn file-btn">📤 Carregar JSON</label>
-        <input type="file" id="file-upload" accept=".json" style="display:none;">
-        <button id="btn-export-pdf" class="btn">🖨️ Exportar PDF</button>
-        
-        <div class="color-picker-container">
-            <label for="primary-color">Cor da Tinta:</label>
-            <input type="color" id="primary-color" value="#5c1a1b">
+        <div class="action-group">
+            <button id="btn-edit-mode" class="btn btn-primary">🛡️ Edição: OFF</button>
+            <div class="color-picker-container">
+                <input type="color" id="primary-color" value="#5c1a1b" title="Cor Tema">
+            </div>
+        </div>
+        <div class="action-group">
+            <button id="btn-save" class="btn">💾 Salvar Local</button>
+            <button id="btn-share-link" class="btn btn-highlight">🔗 Gerar Link</button>
+        </div>
+        <div class="action-group">
+            <button id="btn-copy-clipboard" class="btn">📋 Copiar Dados</button>
+            <button id="btn-paste-clipboard" class="btn">📥 Colar Dados</button>
+        </div>
+        <div class="action-group">
+            <button id="btn-export-json" class="btn">⬇️ Backup .json</button>
+            <label for="file-upload" class="btn file-btn">⬆️ Carregar .json</label>
+            <input type="file" id="file-upload" accept=".json" style="display:none;">
+            <button id="btn-export-pdf" class="btn">🖨️ PDF</button>
         </div>
     </div>
 

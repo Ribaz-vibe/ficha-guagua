@@ -16,7 +16,26 @@ document.addEventListener('DOMContentLoaded', () => {
     loadAttributesStructure();
     buildAttributesUI();
     setupEventListeners();
-    loadState();
+    
+    // Check for compressed data in URL
+    if (window.location.hash && window.location.hash.startsWith('#data=')) {
+        try {
+            const compressed = window.location.hash.substring(6);
+            const jsonStr = LZString.decompressFromEncodedURIComponent(compressed);
+            if (jsonStr) {
+                const state = JSON.parse(jsonStr);
+                loadAttributesStructure(state);
+                loadState(state);
+                alert('Ficha carregada a partir do link!');
+                window.location.hash = ''; // Clear hash so refresh doesn't reload it
+            }
+        } catch (e) {
+            console.error('Failed to parse URL data:', e);
+        }
+    } else {
+        loadState();
+    }
+    
     calculateAll();
 });
 
@@ -168,6 +187,16 @@ function setupEventListeners() {
     document.getElementById('btn-save').addEventListener('click', saveState);
     document.getElementById('btn-export-pdf').addEventListener('click', () => window.print());
     document.getElementById('btn-export-json').addEventListener('click', exportJSON);
+    
+    // New Sharing / Clipboard features
+    const btnShare = document.getElementById('btn-share-link');
+    if (btnShare) btnShare.addEventListener('click', generateShareLink);
+    
+    const btnCopy = document.getElementById('btn-copy-clipboard');
+    if (btnCopy) btnCopy.addEventListener('click', copyClipboard);
+    
+    const btnPaste = document.getElementById('btn-paste-clipboard');
+    if (btnPaste) btnPaste.addEventListener('click', pasteClipboard);
     
     // Load JSON
     document.getElementById('file-upload').addEventListener('change', importJSON);
@@ -331,4 +360,71 @@ function importJSON(event) {
         }
     };
     reader.readAsText(file);
+}
+
+// --- NEW SHARING FUNCTIONS ---
+
+function getStateObject() {
+    syncAttributesFromDOM();
+    const state = {};
+    document.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach(el => {
+        if (el.id && !el.id.startsWith('label-skill-') && !el.id.startsWith('prof-') && !el.id.startsWith('auto-attr-') && !el.id.startsWith('mod-attr-') && !el.id.startsWith('val-attr-') && !el.id.startsWith('label-attr-')) {
+            state[el.id] = el.value;
+        }
+    });
+    
+    attributesData.forEach(attr => {
+        const valInput = document.getElementById(`val-attr-${attr.id}`);
+        if (valInput) attr.value = parseInt(valInput.value) || 0;
+        const modInput = document.getElementById(`mod-attr-${attr.id}`);
+        if (modInput) attr.modifier = parseInt(modInput.value) || 0;
+    });
+
+    state['primaryColor'] = document.getElementById('primary-color').value;
+    state['guardioesAttributesData'] = attributesData;
+    return state;
+}
+
+function generateShareLink() {
+    const state = getStateObject();
+    const jsonStr = JSON.stringify(state);
+    const compressed = LZString.compressToEncodedURIComponent(jsonStr);
+    const shareUrl = window.location.origin + window.location.pathname + '#data=' + compressed;
+    
+    navigator.clipboard.writeText(shareUrl).then(() => {
+        alert('Link Mágico copiado para a área de transferência!\n\nCole no Discord ou WhatsApp para compartilhar sua ficha atualizada.');
+    }).catch(err => {
+        console.error('Erro ao copiar link:', err);
+        alert('Não foi possível copiar o link automaticamente. Veja o console.');
+    });
+}
+
+function copyClipboard() {
+    const state = getStateObject();
+    const jsonStr = JSON.stringify(state);
+    
+    navigator.clipboard.writeText(jsonStr).then(() => {
+        alert('Dados da Ficha copiados! (Texto JSON)\n\nAgora seu mestre pode usar o botão "Colar Dados" com isso.');
+    }).catch(err => {
+        console.error('Erro ao copiar dados:', err);
+        alert('Erro ao copiar dados.');
+    });
+}
+
+async function pasteClipboard() {
+    try {
+        const text = await navigator.clipboard.readText();
+        if (!text) {
+            alert('A área de transferência está vazia.');
+            return;
+        }
+        
+        const state = JSON.parse(text);
+        loadAttributesStructure(state);
+        loadState(state);
+        alert('Ficha importada com sucesso da área de transferência!');
+    } catch (err) {
+        console.error('Erro ao colar:', err);
+        alert('O texto na área de transferência não é um formato de ficha válido.');
+    }
 }
