@@ -1,0 +1,498 @@
+:root {
+    --primary-color: #5c1a1b;
+    --bg-dark: #141210;
+    --sheet-bg: #211e1c;
+    --text-color: #e0d5c1;
+    --border-color: #3d352e;
+    --input-bg: #1a1715;
+    
+    --font-title: 'Cinzel', serif;
+    --font-body: 'Cormorant Garamond', serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-color);
+    font-family: var(--font-body);
+    font-size: 18px;
+    line-height: 1.5;
+    padding: 20px;
+}
+
+/* Action Bar */
+.action-bar {
+    background-color: var(--sheet-bg);
+    border: 2px solid var(--primary-color);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+.btn {
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    border: 1px solid var(--primary-color);
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: var(--font-title);
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+.file-btn {
+    display: inline-block;
+    text-align: center;
+}
+
+.color-picker-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+    font-family: var(--font-title);
+    font-size: 14px;
+}
+
+/* App Layout */
+.app-layout {
+    display: flex;
+    max-width: 1400px;
+    margin: 0 auto;
+    gap: 20px;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background-color: var(--sheet-bg);
+    border: 3px solid var(--primary-color);
+    border-radius: 12px;
+    padding: 20px 10px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.8);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: fit-content;
+}
+
+.sidebar-header h3 {
+    font-family: var(--font-title);
+    color: var(--primary-color);
+    text-align: center;
+    margin-bottom: 15px;
+    border-bottom: 1px solid var(--primary-color);
+    padding-bottom: 10px;
+}
+
+.tab-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    font-family: var(--font-body);
+    font-size: 1.2rem;
+    text-align: left;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+}
+
+.tab-btn:hover {
+    background-color: rgba(255,255,255,0.05);
+}
+
+.tab-btn.active {
+    background-color: var(--input-bg);
+    border-left: 4px solid var(--primary-color);
+    color: #fff;
+    font-weight: bold;
+}
+
+/* Main Content */
+.main-content {
+    flex-grow: 1;
+    background-color: var(--sheet-bg);
+    border: 3px solid var(--primary-color);
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.5);
+    background-image: radial-gradient(circle at center, rgba(255,255,255,0.02) 0%, rgba(0,0,0,0.2) 100%);
+}
+
+.tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.sheet-header {
+    text-align: center;
+    margin-bottom: 30px;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 10px;
+}
+
+.title-input {
+    font-family: var(--font-title);
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    text-align: center;
+    width: 100%;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.grid-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+@media (max-width: 900px) {
+    .app-layout { flex-direction: column; }
+    .sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; }
+    .tab-btn { flex: 1; text-align: center; justify-content: center; border-left: none; border-bottom: 2px solid transparent;}
+    .tab-btn.active { border-left: none; border-bottom: 2px solid var(--primary-color); }
+    .grid-layout { grid-template-columns: 1fr; }
+}
+
+/* Panels */
+.panel {
+    border: 1px solid var(--border-color);
+    background-color: rgba(20, 18, 16, 0.4);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.panel-header {
+    background-color: var(--border-color);
+    border-bottom: 2px solid var(--primary-color);
+    padding: 8px 15px;
+}
+
+.panel-header .editable-label {
+    font-family: var(--font-title);
+    font-size: 1.2rem;
+    color: var(--primary-color);
+    font-weight: bold;
+    width: 100%;
+}
+
+.panel-body {
+    padding: 15px;
+}
+
+/* Fields & Inputs */
+.field, .slot-field, .wallet-item {
+    display: flex;
+    align-items: baseline;
+    margin-bottom: 8px;
+    border-bottom: 1px dashed var(--border-color);
+    padding-bottom: 4px;
+}
+
+input, textarea {
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    font-family: var(--font-body);
+    font-size: 1.1rem;
+    outline: none;
+    transition: background 0.3s, border 0.3s;
+}
+
+.editable-label {
+    font-weight: bold;
+    color: #c4b59d;
+    width: 40%;
+    margin-right: 10px;
+}
+
+.value-input {
+    width: 60%;
+    flex-grow: 1;
+    color: #fff;
+}
+
+.number-input {
+    width: 50px;
+    text-align: center;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.textarea-large {
+    width: 100%;
+    height: 120px;
+    resize: vertical;
+    margin-top: 10px;
+    border: 1px solid var(--border-color);
+    padding: 10px;
+    background: var(--input-bg);
+}
+
+.textarea-huge {
+    width: 100%;
+    height: 300px;
+    resize: vertical;
+    margin-top: 10px;
+    border: 1px solid var(--border-color);
+    padding: 10px;
+    background: var(--input-bg);
+}
+
+/* Edit Mode Styles */
+.edit-mode .editable-label {
+    border-bottom: 1px solid var(--primary-color);
+    background-color: rgba(255,255,255,0.05);
+}
+.edit-mode .value-input {
+    background-color: rgba(0,0,0,0.3);
+    border-bottom: 1px solid #555;
+}
+
+/* Dynamic Additions UI */
+.auto-calc-lbl {
+    font-size: 0.75rem;
+    color: #888;
+    display: none;
+    align-items: center;
+    gap: 3px;
+    cursor: pointer;
+    font-family: var(--font-body);
+}
+.edit-mode .auto-calc-lbl {
+    display: flex;
+}
+.del-skill-btn {
+    background: none;
+    border: none;
+    color: #ff4c4c;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: none;
+    margin-left: 5px;
+}
+.edit-mode .del-skill-btn {
+    display: inline-block;
+}
+.add-skill-btn {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px dashed var(--primary-color);
+    color: var(--primary-color);
+    cursor: pointer;
+    padding: 5px;
+    margin-top: 10px;
+    border-radius: 4px;
+    font-family: var(--font-title);
+    font-size: 0.9rem;
+    display: none;
+    transition: background 0.2s;
+}
+.add-skill-btn:hover {
+    background: rgba(255,255,255,0.1);
+}
+.edit-mode .add-skill-btn {
+    display: block;
+}
+
+/* Attributes Grid - Refined */
+.attr-block {
+    margin-bottom: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    background-color: var(--input-bg);
+}
+
+.attr-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 15px;
+    background-color: rgba(20, 18, 16, 0.8);
+    border-bottom: 1px solid var(--primary-color);
+}
+
+.attr-header .editable-label {
+    font-family: var(--font-title);
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    width: 50%;
+    text-transform: uppercase;
+}
+
+.attr-score {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.attr-val {
+    font-size: 1.2rem;
+    width: 40px;
+    text-align: center;
+    color: #888;
+}
+
+.attr-mod {
+    font-size: 1.4rem;
+    font-family: var(--font-title);
+    color: var(--primary-color);
+    font-weight: bold;
+    width: 50px;
+    text-align: center;
+    background: transparent;
+    border: none;
+    outline: none;
+}
+.mod-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.skill-list {
+    padding: 10px 15px;
+}
+
+.skill-item {
+    display: flex;
+    align-items: center;
+    font-size: 1.1rem;
+    margin-bottom: 6px;
+    justify-content: space-between;
+}
+
+.skill-prof {
+    width: 30px;
+    text-align: center;
+    font-size: 1rem;
+    color: #aaa;
+    border-bottom: 1px dotted #555;
+    margin-right: 15px;
+}
+
+.skill-name {
+    flex-grow: 1;
+    color: #e0d5c1;
+    font-weight: normal;
+}
+
+.skill-total {
+    width: 40px;
+    font-weight: normal;
+    text-align: right;
+    color: var(--primary-color);
+    font-size: 1.1rem;
+}
+
+/* Combat Stats */
+.combat-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.stat-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--input-bg);
+    padding: 10px 15px;
+    border-radius: 5px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.stat-label {
+    font-family: var(--font-title);
+    font-size: 1.2rem;
+}
+
+.stat-values {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.encumbrance-bar {
+    background-color: var(--input-bg);
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    text-align: center;
+    border: 1px solid var(--border-color);
+}
+
+.calc-value {
+    font-weight: bold;
+    color: var(--primary-color);
+    font-size: 1.2rem;
+}
+
+.helper-text {
+    font-size: 0.8rem;
+    color: #666;
+    margin-left: 10px;
+}
+
+/* Print Styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    body {
+        background-color: white;
+        color: black;
+        padding: 0;
+    }
+    .app-layout { display: block; }
+    .main-content {
+        border: none;
+        box-shadow: none;
+        background: white;
+        padding: 0;
+    }
+    .tab-content { display: block !important; page-break-inside: avoid; margin-bottom: 30px; }
+    .panel {
+        border-color: #ccc;
+        background-color: transparent;
+        page-break-inside: avoid;
+    }
+    .panel-header {
+        background-color: #eee;
+        border-bottom-color: black;
+    }
+    input, textarea { color: black; }
+    .editable-label, .skill-name { color: #333; }
+    .number-input, .calc-value, .title-input, .panel-header .editable-label, .attr-header .editable-label, .attr-mod, .skill-total { color: black; }
+    .attr-header { background-color: #eee; border-bottom-color: #ccc; }
+    .stat-box { background-color: #eee; border-left-color: black; }
+}
