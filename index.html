@@ -9,27 +9,94 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
 </head>
 <body>
-    <!-- Top Action Bar -->
-    <div class="action-bar no-print">
-        <div class="action-group">
-            <button id="btn-edit-mode" class="btn btn-primary">🛡️ Edição: OFF</button>
+    
+    <!-- Floating Buttons -->
+    <button id="btn-toggle-menu" class="floating-btn sys-btn" title="Menu de Sistema">⚙️</button>
+    <button id="btn-toggle-scratchpad" class="floating-btn scratch-btn" title="Bloco de Notas">📝</button>
+
+    <!-- System Menu (Drawer) -->
+    <nav id="system-menu" class="system-menu">
+        <div class="menu-header">
+            <h3>SISTEMA</h3>
+            <button id="btn-close-menu" class="close-btn">✖</button>
+        </div>
+        
+        <div class="menu-section">
+            <h4>Sessão</h4>
+            <button id="btn-play-mode" class="btn btn-highlight">⚔️ Modo Jogo: OFF</button>
+            <button id="btn-edit-mode" class="btn btn-primary">🛡️ Modo Edição: OFF</button>
+        </div>
+        
+        <div class="menu-section">
+            <h4>Arquivos & Compartilhamento</h4>
+            <button id="btn-save" class="btn">💾 Salvar Localmente</button>
+            <div class="auto-save-control">
+                <label for="auto-save-select">Auto-Save:</label>
+                <select id="auto-save-select">
+                    <option value="0">Desligado</option>
+                    <option value="5">5 Minutos</option>
+                    <option value="10">10 Minutos</option>
+                </select>
+            </div>
+            
+            <button id="btn-share-link" class="btn btn-highlight">🔗 Gerar Link Mágico</button>
+            
+            <div class="split-btns">
+                <button id="btn-copy-clipboard" class="btn">📋 Copiar</button>
+                <button id="btn-paste-clipboard" class="btn">📥 Colar</button>
+            </div>
+            
+            <button id="btn-export-json" class="btn">⬇️ Baixar Backup (.json)</button>
+            <label for="file-upload" class="btn file-btn">⬆️ Carregar Backup (.json)</label>
+            <input type="file" id="file-upload" accept=".json" style="display:none;">
+            
+            <button id="btn-export-pdf" class="btn">🖨️ Exportar para PDF</button>
+        </div>
+
+        <div class="menu-section">
+            <h4>Customização</h4>
             <div class="color-picker-container">
-                <input type="color" id="primary-color" value="#5c1a1b" title="Cor Tema">
+                <label for="primary-color">Cor Tema:</label>
+                <input type="color" id="primary-color" value="#7a1d1e" title="Cor Tema">
             </div>
         </div>
-        <div class="action-group">
-            <button id="btn-save" class="btn">💾 Salvar Local</button>
-            <button id="btn-share-link" class="btn btn-highlight">🔗 Gerar Link</button>
+        
+        <div class="menu-section">
+            <button id="btn-new-sheet" class="btn btn-danger">⚠️ Nova Ficha Vazia</button>
         </div>
-        <div class="action-group">
-            <button id="btn-copy-clipboard" class="btn">📋 Copiar Dados</button>
-            <button id="btn-paste-clipboard" class="btn">📥 Colar Dados</button>
+    </nav>
+
+    <!-- Scratchpad (Floating) -->
+    <div id="scratchpad" class="scratchpad hidden no-print">
+        <div class="scratchpad-header">
+            <span>Anotações Rápidas</span>
+            <button id="btn-close-scratchpad" class="close-btn">✖</button>
         </div>
-        <div class="action-group">
-            <button id="btn-export-json" class="btn">⬇️ Backup .json</button>
-            <label for="file-upload" class="btn file-btn">⬆️ Carregar .json</label>
-            <input type="file" id="file-upload" accept=".json" style="display:none;">
-            <button id="btn-export-pdf" class="btn">🖨️ PDF</button>
+        <textarea id="scratchpad-text" placeholder="Escreva iniciativa, danos temporários..."></textarea>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container no-print"></div>
+
+    <!-- Play HUD (Floating Top Bar) -->
+    <div id="play-hud" class="play-hud hidden no-print">
+        <div class="hud-item hp-hud">
+            <span class="hud-label">HP</span>
+            <input type="number" class="hud-input" id="hud-hp-curr" value="10">
+            <span class="hud-sep">/</span>
+            <span class="hud-max" id="hud-hp-max">10</span>
+        </div>
+        <div class="hud-item pp-hud">
+            <span class="hud-label">PP</span>
+            <input type="number" class="hud-input" id="hud-pp-curr" value="5">
+            <span class="hud-sep">/</span>
+            <span class="hud-max" id="hud-pp-max">5</span>
+        </div>
+        <div class="hud-item mp-hud">
+            <span class="hud-label">MP</span>
+            <input type="number" class="hud-input" id="hud-mp-curr" value="5">
+            <span class="hud-sep">/</span>
+            <span class="hud-max" id="hud-mp-max">5</span>
         </div>
     </div>
 
@@ -59,19 +126,30 @@
 
             <!-- ABA: PERFIL -->
             <div id="tab-perfil" class="tab-content active">
-                <section class="panel">
-                    <div class="panel-header"><input type="text" class="editable-label" value="PERFIL" readonly></div>
-                    <div class="panel-body profile-grid">
-                        <div class="field"><input type="text" class="editable-label" value="Nome:" readonly><input type="text" class="value-input" id="perfil-nome"></div>
-                        <div class="field"><input type="text" class="editable-label" value="Título:" readonly><input type="text" class="value-input" id="perfil-titulo"></div>
-                        <div class="field"><input type="text" class="editable-label" value="Idade:" readonly><input type="text" class="value-input" id="perfil-idade"></div>
-                        <div class="field"><input type="text" class="editable-label" value="Altura:" readonly><input type="text" class="value-input" id="perfil-altura"></div>
-                        <div class="field"><input type="text" class="editable-label" value="Origem/Raça:" readonly><input type="text" class="value-input" id="perfil-raca"></div>
-                        <div class="field"><input type="text" class="editable-label" value="Classe/Trilha:" readonly><input type="text" class="value-input" id="perfil-classe"></div>
-                        <div class="field"><input type="text" class="editable-label" value="Nível:" readonly><input type="number" class="value-input number-input" id="perfil-nivel" value="1"></div>
-                        <div class="field"><input type="text" class="editable-label" value="Proficiência Base:" readonly><input type="number" class="value-input number-input" id="perfil-proficiencia" value="2"></div>
+                <div class="profile-layout">
+                    <div class="profile-col-img">
+                        <div class="portrait-container">
+                            <img id="char-portrait" src="" alt="?">
+                            <input type="file" id="portrait-upload" accept="image/*" style="display:none;">
+                            <label for="portrait-upload" class="portrait-overlay">📸 Mudar Imagem</label>
+                        </div>
                     </div>
-                </section>
+                    <div class="profile-col-info">
+                        <section class="panel">
+                            <div class="panel-header"><input type="text" class="editable-label" value="PERFIL" readonly></div>
+                            <div class="panel-body profile-grid">
+                                <div class="field"><input type="text" class="editable-label" value="Nome:" readonly><input type="text" class="value-input" id="perfil-nome"></div>
+                                <div class="field"><input type="text" class="editable-label" value="Título:" readonly><input type="text" class="value-input" id="perfil-titulo"></div>
+                                <div class="field"><input type="text" class="editable-label" value="Idade:" readonly><input type="text" class="value-input" id="perfil-idade"></div>
+                                <div class="field"><input type="text" class="editable-label" value="Altura:" readonly><input type="text" class="value-input" id="perfil-altura"></div>
+                                <div class="field"><input type="text" class="editable-label" value="Origem/Raça:" readonly><input type="text" class="value-input" id="perfil-raca"></div>
+                                <div class="field"><input type="text" class="editable-label" value="Classe/Trilha:" readonly><input type="text" class="value-input" id="perfil-classe"></div>
+                                <div class="field"><input type="text" class="editable-label" value="Nível:" readonly><input type="number" class="value-input number-input" id="perfil-nivel" value="1"></div>
+                                <div class="field"><input type="text" class="editable-label" value="Proficiência Base:" readonly><input type="number" class="value-input number-input" id="perfil-proficiencia" value="2"></div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
                 <section class="panel">
                     <div class="panel-header"><input type="text" class="editable-label" value="HISTÓRIA DO PERSONAGEM" readonly></div>
                     <div class="panel-body">
@@ -87,25 +165,34 @@
                         <section class="panel">
                             <div class="panel-header"><input type="text" class="editable-label" value="RECURSOS DE COMBATE" readonly></div>
                             <div class="panel-body combat-grid">
-                                <div class="stat-box">
-                                    <input type="text" class="editable-label stat-label" value="Vida (HP)" readonly>
-                                    <div class="stat-values">
-                                        <input type="number" class="value-input number-input stat-curr" id="stat-hp-curr" value="10"> / 
-                                        <input type="number" class="value-input number-input stat-max" id="stat-hp-max" value="10">
+                                <div class="stat-box hp-box">
+                                    <div class="visual-bar" id="vbar-hp"></div>
+                                    <div class="stat-content">
+                                        <input type="text" class="editable-label stat-label" value="Vida (HP)" readonly>
+                                        <div class="stat-values">
+                                            <input type="number" class="value-input number-input stat-curr sync-hp-curr" id="stat-hp-curr" value="10"> / 
+                                            <input type="number" class="value-input number-input stat-max sync-hp-max calc-trigger" id="stat-hp-max" value="10">
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="stat-box">
-                                    <input type="text" class="editable-label stat-label" value="Poder (PP)" readonly>
-                                    <div class="stat-values">
-                                        <input type="number" class="value-input number-input stat-curr" id="stat-pp-curr" value="5"> / 
-                                        <input type="number" class="value-input number-input stat-max" id="stat-pp-max" value="5">
+                                <div class="stat-box pp-box">
+                                    <div class="visual-bar" id="vbar-pp"></div>
+                                    <div class="stat-content">
+                                        <input type="text" class="editable-label stat-label" value="Poder (PP)" readonly>
+                                        <div class="stat-values">
+                                            <input type="number" class="value-input number-input stat-curr sync-pp-curr" id="stat-pp-curr" value="5"> / 
+                                            <input type="number" class="value-input number-input stat-max sync-pp-max calc-trigger" id="stat-pp-max" value="5">
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="stat-box">
-                                    <input type="text" class="editable-label stat-label" value="Arcana (MP)" readonly>
-                                    <div class="stat-values">
-                                        <input type="number" class="value-input number-input stat-curr" id="stat-mp-curr" value="5"> / 
-                                        <input type="number" class="value-input number-input stat-max" id="stat-mp-max" value="5">
+                                <div class="stat-box mp-box">
+                                    <div class="visual-bar" id="vbar-mp"></div>
+                                    <div class="stat-content">
+                                        <input type="text" class="editable-label stat-label" value="Arcana (MP)" readonly>
+                                        <div class="stat-values">
+                                            <input type="number" class="value-input number-input stat-curr sync-mp-curr" id="stat-mp-curr" value="5"> / 
+                                            <input type="number" class="value-input number-input stat-max sync-mp-max calc-trigger" id="stat-mp-max" value="5">
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="defense-grid">
