@@ -1,0 +1,17 @@
+{
+  "name": "Ficha Guardiões 3.0",
+  "short_name": "Guardiões",
+  "description": "Ficha digital de RPG para o sistema Guardiões 3.0",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0a0908",
+  "theme_color": "#7a1d1e",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

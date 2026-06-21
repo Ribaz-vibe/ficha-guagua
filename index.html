@@ -20,6 +20,11 @@
     <div id="dirty-indicator" class="dirty-indicator no-print"></div>
 
     <!-- Floating Buttons -->
+    <div class="top-floating-controls">
+        <button id="btn-theme-toggle" class="floating-btn glass" title="Alternar Tema">🌙</button>
+        <button id="btn-undo" class="floating-btn glass" title="Desfazer (Ctrl+Z)">↩️</button>
+        <button id="btn-redo" class="floating-btn glass" title="Refazer (Ctrl+Y)">↪️</button>
+    </div>
     <button id="btn-toggle-menu" class="floating-btn sys-btn glass" title="Menu de Sistema">⚙️</button>
     <button id="btn-toggle-scratchpad" class="floating-btn scratch-btn glass" title="Bloco de Notas">📝</button>
 
@@ -30,6 +35,15 @@
             <button id="btn-close-menu" class="close-btn">✖</button>
         </div>
         
+        <div class="menu-section">
+            <h4>Personagens</h4>
+            <div class="char-switcher-control">
+                <select id="char-switcher"></select>
+                <button id="btn-new-char" class="btn btn-primary" title="Criar Nova Ficha">+</button>
+            </div>
+            <button id="btn-del-char" class="btn btn-danger" style="margin-top: 5px;">🗑️ Deletar Atual</button>
+        </div>
+
         <div class="menu-section">
             <h4>Sessão</h4>
             <button id="btn-play-mode" class="btn btn-highlight">⚔️ Modo Jogo: OFF</button>
@@ -398,6 +412,27 @@
             
         </main>
     </div>
-    <script src="script.js?v=4"></script>
+    <!-- History Drawer -->
+    <div id="history-drawer" class="history-drawer glass">
+        <div class="history-header">
+            <h3>📖 Diário de Aventura</h3>
+            <button id="btn-toggle-history" class="btn">Mostrar/Esconder</button>
+        </div>
+        <div id="history-log-content" class="history-content"></div>
+    </div>
+
+    <!-- Dice Roller Modal -->
+    <div id="dice-modal" class="dice-modal glass hidden">
+        <div class="dice-modal-content">
+            <h2 id="dice-reason">Rolando...</h2>
+            <div class="dice-animation-container">
+                <div id="dice-result" class="dice-result">20</div>
+            </div>
+            <p id="dice-formula">1d20 + 0</p>
+            <button id="btn-close-dice" class="btn btn-primary">Fechar</button>
+        </div>
+    </div>
+
+    <script type="module" src="js/app.js?v=5"></script>
 </body>
 </html>

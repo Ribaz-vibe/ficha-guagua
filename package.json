@@ -1,0 +1,28 @@
+{
+  "name": "guardioes-rpg-sheet",
+  "version": "1.0.0",
+  "description": "Ficha Guardiões 3.0",
+  "main": "script.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "vercel-build": "vite build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ribaz-vibe/ficha-guagua.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ribaz-vibe/ficha-guagua/issues"
+  },
+  "homepage": "https://github.com/Ribaz-vibe/ficha-guagua#readme",
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "vite-plugin-pwa": "^1.3.0"
+  }
+}
