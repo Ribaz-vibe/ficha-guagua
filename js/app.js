@@ -95,7 +95,7 @@ function loadAttributesStructure(state = null) {
     if (state && state.guardioesAttributesData) {
         sourceData = state.guardioesAttributesData;
     } else {
-        const fullState = getStoredJSON('guardioesRPGState');
+        const fullState = getStoredJSON(`guardioesRPGState_${getCurrentCharId()}`);
         if (fullState && fullState.guardioesAttributesData) {
             sourceData = fullState.guardioesAttributesData;
         }
@@ -606,7 +606,7 @@ function updateEditModeUI() {
 
 // --- DYNAMIC TABS & FIELDS ---
 function loadDynamicStructure() {
-    const state = getStoredJSON('guardioesRPGState');
+    const state = getStoredJSON(`guardioesRPGState_${getCurrentCharId()}`);
     if (state) {
         if (state.guardioesCustomTabs) customTabs = state.guardioesCustomTabs;
         if (state.guardioesCustomFields) customFields = state.guardioesCustomFields;
@@ -688,7 +688,7 @@ function renderDynamicFields() {
         attachAccordionEvent(section.querySelector('.accordion-header'));
         
         // Restore value if it exists in DOM memory during re-render
-        const s = getStoredJSON('guardioesRPGState');
+        const s = getStoredJSON(`guardioesRPGState_${getCurrentCharId()}`);
         if(s && s[field.id]) {
             setTimeout(() => {
                 const el = document.getElementById(field.id);
@@ -798,6 +798,26 @@ export function applyStateObject(providedState = null) {
         state = getStoredJSON(`guardioesRPGState_${getCurrentCharId()}`);
     }
     
+    loadAttributesStructure(state);
+    if (state && state.guardioesCustomTabs) customTabs = state.guardioesCustomTabs;
+    else customTabs = [];
+    
+    if (state && state.guardioesCustomFields) customFields = state.guardioesCustomFields;
+    else customFields = [];
+    
+    renderDynamicTabs();
+    renderDynamicFields();
+    buildAttributesUI();
+
+    // 1. Reset all standard text inputs/textareas to empty before applying
+    document.querySelectorAll('#sheet-container input[type="text"], #sheet-container input[type="number"], #sheet-container textarea').forEach(el => {
+        if (!el.classList.contains('editable-label')) {
+            el.value = '';
+        }
+    });
+    const charNameInput = document.getElementById('perfil-nome');
+    if (charNameInput) charNameInput.value = 'Novo Personagem';
+    
     if (state) {
         for (const key in state) {
             if (key !== 'guardioesAttributesData' && key !== 'primaryColor' && key !== 'charPortrait' && key !== 'scratchpad' && key !== 'guardioesCustomTabs' && key !== 'guardioesCustomFields') {
@@ -827,6 +847,7 @@ export function applyStateObject(providedState = null) {
             if(hudCurr && statCurr) hudCurr.value = statCurr.value;
         });
     }
+    calculateAll();
 }
 
 // --- EXPORT/IMPORT ---
