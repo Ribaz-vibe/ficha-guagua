@@ -3,19 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Ficha digital imersiva para o RPG Guardiões 3.0 — Dark Fantasy com compartilhamento por link mágico">
+    <meta name="theme-color" content="#7a1d1e">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
     <title>Ficha Guardiões 3.0</title>
     <link rel="stylesheet" href="styles.css?v=3">
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js" integrity="sha512-qtX0GLM3qX8rxJN1gyDfcnMFFrKvixfoEOwbBib9VafR5vbChV5LeE5wSI/x+IlCkTY5ZFddFDCCfaVJJNnuKQ==" crossorigin="anonymous"></script>
 </head>
 <body>
+    <noscript>Esta ficha requer JavaScript para funcionar corretamente.</noscript>
     
+    <div id="dirty-indicator" class="dirty-indicator no-print"></div>
+
     <!-- Floating Buttons -->
-    <button id="btn-toggle-menu" class="floating-btn sys-btn" title="Menu de Sistema">⚙️</button>
-    <button id="btn-toggle-scratchpad" class="floating-btn scratch-btn" title="Bloco de Notas">📝</button>
+    <button id="btn-toggle-menu" class="floating-btn sys-btn glass" title="Menu de Sistema">⚙️</button>
+    <button id="btn-toggle-scratchpad" class="floating-btn scratch-btn glass" title="Bloco de Notas">📝</button>
 
     <!-- System Menu (Drawer) -->
-    <nav id="system-menu" class="system-menu">
+    <nav id="system-menu" class="system-menu glass">
         <div class="menu-header">
             <h3>SISTEMA</h3>
             <button id="btn-close-menu" class="close-btn">✖</button>
@@ -67,7 +76,7 @@
     </nav>
 
     <!-- Scratchpad (Floating) -->
-    <div id="scratchpad" class="scratchpad hidden no-print">
+    <div id="scratchpad" class="scratchpad hidden no-print glass">
         <div class="scratchpad-header">
             <span>Anotações Rápidas</span>
             <button id="btn-close-scratchpad" class="close-btn">✖</button>
@@ -79,7 +88,7 @@
     <div id="toast-container" class="toast-container no-print"></div>
 
     <!-- Play HUD (Floating Top Bar) -->
-    <div id="play-hud" class="play-hud hidden no-print">
+    <div id="play-hud" class="play-hud hidden no-print glass">
         <div class="hud-item hp-hud">
             <span class="hud-label">HP</span>
             <input type="number" class="hud-input" id="hud-hp-curr" value="10">
@@ -103,7 +112,7 @@
     <!-- Main Layout: Sidebar + Content -->
     <div class="app-layout">
         <!-- Sidebar Navigation -->
-        <aside class="sidebar no-print">
+        <nav class="sidebar no-print glass" role="navigation" aria-label="Navegação da Ficha">
             <div class="sidebar-header">
                 <h3>MENU</h3>
             </div>
@@ -120,10 +129,10 @@
             
             <div id="custom-tabs-container"></div>
             <button id="btn-add-tab" class="btn btn-highlight edit-only-ui" style="margin-top: 15px; width: 100%;">➕ Nova Aba</button>
-        </aside>
+        </nav>
 
         <!-- Main Content Area -->
-        <main class="main-content" id="sheet-container">
+        <main class="main-content glass" id="sheet-container">
             <header class="sheet-header">
                 <input type="text" class="editable-label title-input" value="FICHA GUARDIÕES 3.0" id="main-title" readonly>
             </header>
@@ -142,14 +151,14 @@
                         <section class="panel">
                             <div class="panel-header"><input type="text" class="editable-label" value="PERFIL" readonly></div>
                             <div class="panel-body profile-grid">
-                                <div class="field"><input type="text" class="editable-label" value="Nome:" readonly><input type="text" class="value-input" id="perfil-nome"></div>
-                                <div class="field"><input type="text" class="editable-label" value="Título:" readonly><input type="text" class="value-input" id="perfil-titulo"></div>
+                                <div class="field"><input type="text" class="editable-label" value="Nome:" readonly><input type="text" class="value-input" id="perfil-nome" autocomplete="off"></div>
+                                <div class="field"><input type="text" class="editable-label" value="Título:" readonly><input type="text" class="value-input" id="perfil-titulo" autocomplete="off"></div>
                                 <div class="field"><input type="text" class="editable-label" value="Idade:" readonly><input type="text" class="value-input" id="perfil-idade"></div>
                                 <div class="field"><input type="text" class="editable-label" value="Altura:" readonly><input type="text" class="value-input" id="perfil-altura"></div>
                                 <div class="field"><input type="text" class="editable-label" value="Origem/Raça:" readonly><input type="text" class="value-input" id="perfil-raca"></div>
-                                <div class="field"><input type="text" class="editable-label" value="Classe/Trilha:" readonly><input type="text" class="value-input" id="perfil-classe"></div>
-                                <div class="field"><input type="text" class="editable-label" value="Nível:" readonly><input type="number" class="value-input number-input" id="perfil-nivel" value="1"></div>
-                                <div class="field"><input type="text" class="editable-label" value="Proficiência Base:" readonly><input type="number" class="value-input number-input" id="perfil-proficiencia" value="2"></div>
+                                <div class="field"><input type="text" class="editable-label" value="Classe/Trilha:" readonly><input type="text" class="value-input" id="perfil-classe" autocomplete="off"></div>
+                                <div class="field"><input type="text" class="editable-label" value="Nível:" readonly><input type="number" class="value-input number-input" id="perfil-nivel" value="1" min="1" max="99" step="1"></div>
+                                <div class="field"><input type="text" class="editable-label" value="Proficiência Base:" readonly><input type="number" class="value-input number-input" id="perfil-proficiencia" value="2" min="0" max="99" step="1"></div>
                             </div>
                         </section>
                     </div>

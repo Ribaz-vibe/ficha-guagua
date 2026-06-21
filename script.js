@@ -1,3 +1,46 @@
+(function() {
+
+function sanitizeHTML(str) {
+    if (typeof str !== 'string') return str;
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+function safeSetItem(key, value) {
+    try {
+        localStorage.setItem(key, value);
+        return true;
+    } catch (e) {
+        if (e.name === 'QuotaExceededError' || e.code === 22) {
+            showToast('⚠️ Armazenamento cheio! Exporte um backup JSON para liberar espaço.', 'error');
+        }
+        console.error('localStorage error:', e);
+        return false;
+    }
+}
+
+function getStoredJSON(key, fallback = null) {
+    try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+    } catch (e) {
+        console.error(`Erro ao parsear ${key}:`, e);
+        return fallback;
+    }
+}
+
+function clearAppData() {
+    const appKeys = ['guardioesRPGState', 'guardioesAttributesData', 
+                     'guardioesCustomTabs', 'guardioesCustomFields',
+                     'charPortrait', 'primaryColor', 'guardioesAutoSave'];
+    appKeys.forEach(key => localStorage.removeItem(key));
+}
+
+function isValidImageDataURI(str) {
+    return /^data:image\/(png|jpe?g|gif|webp|svg\+xml);base64,/.test(str);
+}
+
 const defaultAttributesData = [
     { id: 'forca', name: 'FORÇA', value: 10, modifier: 0, autoMod: true, skills: [{ name: 'Atletismo', prof: 0 }, { name: 'Agarrar', prof: 0 }, { name: 'Impacto', prof: 0 }] },
     { id: 'destreza', name: 'DESTREZA', value: 10, modifier: 0, autoMod: true, skills: [{ name: 'Acrobacia', prof: 0 }, { name: 'Esquiva', prof: 0 }, { name: 'Furtividade', prof: 0 }, { name: 'Iniciativa', prof: 0 }, { name: 'Roubo', prof: 0 }] },
@@ -29,7 +72,9 @@ document.addEventListener('DOMContentLoaded', () => {
     setupSystemUI();
     
     // URL Hash loader
-    if (window.location.hash && window.location.hash.startsWith('#data=')) {
+    if (typeof LZString === 'undefined') {
+        showToast('Biblioteca de compressão indisponível. Compartilhamento desativado.', 'error');
+    } else if (window.location.hash && window.location.hash.startsWith('#data=')) {
         try {
             const compressed = window.location.hash.substring(6);
             const jsonStr = LZString.decompressFromEncodedURIComponent(compressed);
@@ -56,20 +101,15 @@ function loadAttributesStructure(state = null) {
     if (state && state.guardioesAttributesData) {
         sourceData = state.guardioesAttributesData;
     } else {
-        const fullStateJSON = localStorage.getItem('guardioesRPGState');
-        if (fullStateJSON) {
-            try {
-                const fullState = JSON.parse(fullStateJSON);
-                if (fullState.guardioesAttributesData) {
-                    sourceData = fullState.guardioesAttributesData;
-                }
-            } catch(e) {}
+        const fullState = getStoredJSON('guardioesRPGState');
+        if (fullState && fullState.guardioesAttributesData) {
+            sourceData = fullState.guardioesAttributesData;
         }
         
         if (!sourceData) {
-            const stored = localStorage.getItem('guardioesAttributesData');
-            if (stored) {
-                sourceData = JSON.parse(stored);
+            const storedData = getStoredJSON('guardioesAttributesData');
+            if (storedData) {
+                sourceData = storedData;
             }
         }
     }
@@ -100,7 +140,7 @@ function loadAttributesStructure(state = null) {
 }
 
 function saveAttributesStructure() {
-    localStorage.setItem('guardioesAttributesData', JSON.stringify(attributesData));
+    safeSetItem('guardioesAttributesData', JSON.stringify(attributesData));
 }
 
 // --- TOAST NOTIFICATIONS ---
@@ -137,13 +177,13 @@ function setupSystemUI() {
 
     // Auto-Save
     const autoSaveSelect = document.getElementById('auto-save-select');
-    const storedAutoSave = localStorage.getItem('guardioesAutoSave') || '0';
-    autoSaveSelect.value = storedAutoSave;
+    const storedAutoSave = getStoredJSON('guardioesAutoSave', 0);
+    autoSaveSelect.value = storedAutoSave.toString();
     applyAutoSave(parseInt(storedAutoSave));
     
     autoSaveSelect.addEventListener('change', (e) => {
         const mins = parseInt(e.target.value);
-        localStorage.setItem('guardioesAutoSave', mins);
+        safeSetItem('guardioesAutoSave', mins);
         applyAutoSave(mins);
         showToast(mins > 0 ? `Auto-Save ativado (${mins} min).` : 'Auto-Save desativado.');
     });
@@ -153,7 +193,7 @@ function setupSystemUI() {
         if(confirm('⚠️ ALERTA ⚠️\nIsso vai apagar a ficha atual do seu navegador.\nDeseja fazer o download do backup antes de continuar?')) {
             exportJSON();
         }
-        localStorage.clear();
+        clearAppData();
         attributesData = JSON.parse(JSON.stringify(defaultAttributesData));
         document.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach(el => el.value = '');
         document.getElementById('main-title').value = 'FICHA GUARDIÕES 3.0';
@@ -176,10 +216,34 @@ function setupSystemUI() {
         if (file) {
             const reader = new FileReader();
             reader.onload = function(evt) {
-                document.getElementById('char-portrait').src = evt.target.result;
-                saveStateSilent(); // Save base64 to localstorage
+                if (isValidImageDataURI(evt.target.result)) {
+                    compressImage(evt.target.result).then(compressed => {
+                        document.getElementById('char-portrait').src = compressed;
+                        markDirty();
+                        saveStateSilent();
+                    });
+                } else {
+                    showToast('Formato de imagem inválido!', 'error');
+                }
             };
             reader.readAsDataURL(file);
+        }
+    });
+
+    // Event Delegation
+    document.body.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        
+        const action = btn.dataset.action;
+        if (action === 'remove-skill') {
+            removeSkill(btn.dataset.attrId, parseInt(btn.dataset.skillIdx));
+        } else if (action === 'add-skill') {
+            addSkill(btn.dataset.attrId);
+        } else if (action === 'delete-tab') {
+            deleteTab(parseInt(btn.dataset.tabIdx), e);
+        } else if (action === 'delete-field') {
+            deleteField(parseInt(btn.dataset.fieldIdx), e);
         }
     });
 
@@ -224,8 +288,8 @@ function updateVisualBars() {
         const hudMax = document.getElementById(b.hudMax);
         if(hudMax) hudMax.textContent = m;
         if(bar) {
-            let pct = Math.max(0, Math.min(100, (c / m) * 100));
-            bar.style.width = `${pct}%`;
+            let pct = Math.max(0, Math.min(1, c / m));
+            bar.style.transform = `scaleX(${pct})`;
         }
     });
 }
@@ -263,7 +327,7 @@ function buildAttributesUI() {
 
         let html = `
             <div class="attr-header">
-                <input type="text" class="editable-label" id="label-attr-${attr.id}" value="${attr.name}" readonly>
+                <input type="text" class="editable-label" id="label-attr-${attr.id}" value="${sanitizeHTML(attr.name)}" readonly>
                 <div class="attr-score">
                     <input type="number" class="value-input attr-val calc-trigger" id="val-attr-${attr.id}" value="${attr.value}">
                     <div class="mod-wrapper">
@@ -281,15 +345,15 @@ function buildAttributesUI() {
             html += `
                 <div class="skill-item" id="skill-row-${attr.id}-${idx}">
                     <input type="number" class="skill-prof calc-trigger" id="prof-${attr.id}-${idx}" value="${skill.prof}">
-                    <input type="text" class="editable-label skill-name" id="label-skill-${attr.id}-${idx}" value="${skill.name}" readonly>
+                    <input type="text" class="editable-label skill-name" id="label-skill-${attr.id}-${idx}" value="${sanitizeHTML(skill.name)}" readonly>
                     <span class="skill-total" id="total-${attr.id}-${idx}">+0</span>
-                    <button class="del-skill-btn" onclick="removeSkill('${attr.id}', ${idx})">❌</button>
+                    <button class="del-skill-btn" data-action="remove-skill" data-attr-id="${attr.id}" data-skill-idx="${idx}">❌</button>
                 </div>
             `;
         });
 
         html += `
-            <button class="add-skill-btn" onclick="addSkill('${attr.id}')">➕ Adicionar Perícia</button>
+            <button class="add-skill-btn" data-action="add-skill" data-attr-id="${attr.id}">➕ Adicionar Perícia</button>
             </div>
         `;
         
@@ -446,8 +510,17 @@ function setupEventListeners() {
         updateVisualBars();
     });
 
-    document.querySelectorAll('input, textarea').forEach(el => {
-        el.addEventListener('change', saveStateSilent);
+    document.body.addEventListener('change', (e) => {
+        if (e.target.matches('input, textarea') && !e.target.matches('#portrait-upload, #file-upload')) {
+            markDirty();
+            saveStateSilent();
+        }
+    });
+    
+    document.body.addEventListener('input', (e) => {
+        if (e.target.matches('input, textarea') && !e.target.matches('#portrait-upload, #file-upload')) {
+            markDirty();
+        }
     });
 
     // Main Actions
@@ -490,13 +563,10 @@ function updateEditModeUI() {
 
 // --- DYNAMIC TABS & FIELDS ---
 function loadDynamicStructure() {
-    const fullStateJSON = localStorage.getItem('guardioesRPGState');
-    if (fullStateJSON) {
-        try {
-            const state = JSON.parse(fullStateJSON);
-            if (state.guardioesCustomTabs) customTabs = state.guardioesCustomTabs;
-            if (state.guardioesCustomFields) customFields = state.guardioesCustomFields;
-        } catch(e) {}
+    const state = getStoredJSON('guardioesRPGState');
+    if (state) {
+        if (state.guardioesCustomTabs) customTabs = state.guardioesCustomTabs;
+        if (state.guardioesCustomFields) customFields = state.guardioesCustomFields;
     }
 }
 
@@ -514,7 +584,7 @@ function renderDynamicTabs() {
         const btn = document.createElement('button');
         btn.className = 'tab-btn custom-tab-btn';
         btn.setAttribute('data-target', tab.id);
-        btn.innerHTML = `${tab.name} <button class="del-tab-btn edit-only-ui" onclick="deleteTab(${index}, event)">❌</button>`;
+        btn.innerHTML = `${sanitizeHTML(tab.name)} <button class="del-tab-btn edit-only-ui" data-action="delete-tab" data-tab-idx="${index}">❌</button>`;
         btn.addEventListener('click', (e) => {
             if(e.target.classList.contains('del-tab-btn')) return;
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -550,9 +620,9 @@ function renderDynamicFields() {
         section.className = 'panel accordion custom-field-panel';
         section.innerHTML = `
             <div class="panel-header accordion-header">
-                <input type="text" class="editable-label" id="label-${field.id}" value="${field.label}" ${isEditMode ? '' : 'readonly'}>
+                <input type="text" class="editable-label" id="label-${field.id}" value="${sanitizeHTML(field.label)}" ${isEditMode ? '' : 'readonly'}>
                 <div>
-                    <button class="del-field-btn edit-only-ui" onclick="deleteField(${index}, event)">❌</button>
+                    <button class="del-field-btn edit-only-ui" data-action="delete-field" data-field-idx="${index}">❌</button>
                     <span class="acc-icon">▼</span>
                 </div>
             </div>
@@ -564,14 +634,12 @@ function renderDynamicFields() {
         attachAccordionEvent(section.querySelector('.accordion-header'));
         
         // Restore value if it exists in DOM memory during re-render
-        const savedVal = localStorage.getItem('guardioesRPGState');
-        if(savedVal) {
-            try {
-                const s = JSON.parse(savedVal);
-                if(s[field.id]) {
-                    setTimeout(() => document.getElementById(field.id).value = s[field.id], 50);
-                }
-            } catch(e){}
+        const s = getStoredJSON('guardioesRPGState');
+        if(s && s[field.id]) {
+            setTimeout(() => {
+                const el = document.getElementById(field.id);
+                if (el) el.value = s[field.id];
+            }, 50);
         }
     });
 }
@@ -618,6 +686,16 @@ function syncCustomFieldsFromDOM() {
 }
 
 // --- STATE MANAGEMENT ---
+function markDirty() {
+    const indicator = document.getElementById('dirty-indicator');
+    if(indicator) indicator.classList.add('visible');
+}
+
+function clearDirty() {
+    const indicator = document.getElementById('dirty-indicator');
+    if(indicator) indicator.classList.remove('visible');
+}
+
 function getStateObject() {
     syncAttributesFromDOM();
     syncCustomFieldsFromDOM();
@@ -644,7 +722,8 @@ function getStateObject() {
 
 function saveStateSilent() {
     const state = getStateObject();
-    localStorage.setItem('guardioesRPGState', JSON.stringify(state));
+    safeSetItem('guardioesRPGState', JSON.stringify(state));
+    clearDirty();
 }
 
 function saveState() {
@@ -655,8 +734,7 @@ function saveState() {
 function loadState(providedState = null) {
     let state = providedState;
     if (!state) {
-        const saved = localStorage.getItem('guardioesRPGState');
-        if (saved) state = JSON.parse(saved);
+        state = getStoredJSON('guardioesRPGState');
     }
     
     if (state) {
@@ -673,7 +751,7 @@ function loadState(providedState = null) {
                 cp.dispatchEvent(new Event('input'));
             }
         }
-        if (state.charPortrait) {
+        if (state.charPortrait && isValidImageDataURI(state.charPortrait)) {
             const p = document.getElementById('char-portrait');
             if(p) p.src = state.charPortrait;
         }
@@ -727,6 +805,7 @@ function importJSON(event) {
 // --- SHARING LINKS ---
 function generateShareLink() {
     const state = getStateObject();
+    state._v = 3; // Version marker
     const jsonStr = JSON.stringify(state);
     const compressed = LZString.compressToEncodedURIComponent(jsonStr);
     const shareUrl = window.location.origin + window.location.pathname + '#data=' + compressed;
@@ -756,6 +835,10 @@ async function pasteClipboard() {
         if (!text) return;
         const state = JSON.parse(text);
         loadAttributesStructure(state);
+        if(state.guardioesCustomTabs) customTabs = state.guardioesCustomTabs;
+        if(state.guardioesCustomFields) customFields = state.guardioesCustomFields;
+        renderDynamicTabs();
+        renderDynamicFields();
         buildAttributesUI();
         loadState(state);
         calculateAll();
@@ -765,3 +848,33 @@ async function pasteClipboard() {
         alert('O texto copiado não é uma ficha válida.');
     }
 }
+
+// Image optimization
+function compressImage(base64Str, maxSize = 300, quality = 0.7) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const scale = Math.min(maxSize / img.width, maxSize / img.height, 1);
+            canvas.width = img.width * scale;
+            canvas.height = img.height * scale;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.src = base64Str;
+    });
+}
+
+// Service Worker Registration for PWA
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').then(reg => {
+            console.log('Service Worker registrado', reg.scope);
+        }).catch(err => {
+            console.warn('Falha ao registrar Service Worker', err);
+        });
+    });
+}
+
+})();
